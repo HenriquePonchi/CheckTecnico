@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f4c75">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Checklist CC">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Checklist - Centro Cirúrgico</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="marca">Ronda Técnica <span>Centro Cirúrgico</span></div>
+        <nav class="acoes" aria-label="Ações do checklist">
+            <button type="button" class="btn" id="btnNovo">NOVO CHECKLIST</button>
+            <button type="button" class="btn" id="btnAdicionar">+ ADICIONAR EQUIPAMENTO</button>
+            <button type="button" class="btn" id="btnRestaurar">RESTAURAR PADRÃO</button>
+            <button type="button" class="btn btn-primario" id="btnPdf">EXPORTAR PDF</button>
+        </nav>
+    </div>
+    <div class="resumo" aria-live="polite">
+        <div class="chip">Total de equipamentos: <b id="resTotal">0</b></div>
+        <div class="chip chip-c">Conformes: <b id="resC">0</b></div>
+        <div class="chip chip-nc">Não conformes: <b id="resNC">0</b></div>
+        <div class="chip chip-na">Não aplicados: <b id="resNA">0</b></div>
+        <div class="chip chip-pend">Pendentes: <b id="resPend">0</b></div>
+        <div class="chip-nota">Contagem por item de inspeção (<span id="resItens">0</span> itens)</div>
+        <div class="salvo" id="statusSalvo">—</div>
+    </div>
+</header>
+
+<main class="folha">
+
+    <section class="ficha-cabecalho">
+        <h1>CHECKLIST - CENTRO CIRÚRGICO</h1>
+        <div class="campos-cab">
+            <label class="campo campo-largo">Unidade / Setor
+                <input type="text" data-bind="cabecalho.unidade" placeholder="Ex.: Centro Cirúrgico - Bloco 1" autocomplete="off">
+            </label>
+            <label class="campo">INÍCIO
+                <input type="time" data-bind="cabecalho.inicio">
+            </label>
+            <label class="campo">TÉRMINO
+                <input type="time" data-bind="cabecalho.termino">
+            </label>
+            <label class="campo">DATA
+                <input type="date" data-bind="cabecalho.data">
+            </label>
+        </div>
+    </section>
+
+    <div class="tabela-wrap" id="tabelaWrap">
+        <table class="tabela" id="tabela">
+            <thead>
+                <tr>
+                    <th class="c-patrim"><span class="lg">PATRIM.</span><span class="ct">PAT.</span></th>
+                    <th class="c-desc">DESCRIÇÃO</th>
+                    <th><span class="lg">FABRICANTE</span><span class="ct">FABR.</span></th>
+                    <th>MODELO</th>
+                    <th><span class="lg">Nº DE SÉRIE</span><span class="ct">Nº SÉRIE</span></th>
+                    <th class="c-status" title="INSPEÇÃO VISUAL"><span class="lg">INSPEÇÃO VISUAL</span><span class="ct">INSP. VISUAL</span></th>
+                    <th class="c-status" title="AUTO TESTE">AUTO TESTE</th>
+                    <th class="c-status" title="INSPEÇÃO ACESSÓRIOS"><span class="lg">INSPEÇÃO ACESSÓRIOS</span><span class="ct">INSP. ACESS.</span></th>
+                    <th class="c-status" title="LIGADO NA REDE ELÉTRICA"><span class="lg">LIGADO NA REDE ELÉTRICA</span><span class="ct">LIG. REDE</span></th>
+                    <th class="c-acao"><span class="sr-only">Ações</span></th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabela"></tbody>
+        </table>
+    </div>
+
+    <section class="legenda">
+        <strong>LEGENDA:</strong>
+        <span><b>C</b> - Conforme</span>
+        <span><b>NC</b> - Não Conforme</span>
+        <span><b>NA</b> - Não Aplicado</span>
+    </section>
+
+    <section class="bloco">
+        <h2>OBSERVAÇÕES ADICIONAIS</h2>
+        <textarea id="observacoes" data-bind="observacoes" rows="7" placeholder="Escreva aqui as observações da ronda..."></textarea>
+    </section>
+
+    <div class="duas-colunas">
+        <section class="bloco">
+            <h2>DADOS DO TÉCNICO</h2>
+            <label class="campo">Nome completo
+                <input type="text" data-bind="tecnico.nome" autocomplete="off">
+            </label>
+            <label class="campo">Registro / Identificação
+                <input type="text" data-bind="tecnico.registro" autocomplete="off">
+            </label>
+            <label class="campo">Data
+                <input type="date" data-bind="tecnico.data">
+            </label>
+        </section>
+
+        <section class="bloco">
+            <h2>DADOS DO ENFERMEIRO RESPONSÁVEL</h2>
+            <label class="campo">Nome completo
+                <input type="text" data-bind="enfermeiro.nome" autocomplete="off">
+            </label>
+            <label class="campo">Registro / COREN
+                <input type="text" data-bind="enfermeiro.coren" autocomplete="off">
+            </label>
+        </section>
+    </div>
+
+    <div class="duas-colunas">
+        <section class="bloco">
+            <h2>ASSINATURA DO TÉCNICO</h2>
+            <div class="assinatura" id="boxAssTecnico">
+                <canvas id="canvasTecnico" aria-label="Área de assinatura do técnico"></canvas>
+                <span class="dica-assinar">Assine aqui</span>
+            </div>
+            <button type="button" class="btn btn-pequeno" id="btnLimparTecnico">Limpar assinatura</button>
+        </section>
+
+        <section class="bloco">
+            <h2>ASSINATURA DO ENFERMEIRO</h2>
+            <div class="assinatura" id="boxAssEnfermeiro">
+                <canvas id="canvasEnfermeiro" aria-label="Área de assinatura do enfermeiro"></canvas>
+                <span class="dica-assinar">Assine aqui</span>
+            </div>
+            <button type="button" class="btn btn-pequeno" id="btnLimparEnfermeiro">Limpar assinatura</button>
+        </section>
+    </div>
+
+    <div class="rodape-acoes">
+        <button type="button" class="btn btn-primario btn-grande" id="btnPdf2">EXPORTAR PDF</button>
+    </div>
+
+</main>
+
+<!-- Confirmação / aviso genérico -->
+<dialog id="dlgConfirmar" class="dialogo">
+    <form method="dialog">
+        <h3 id="confTitulo"></h3>
+        <p id="confMensagem"></p>
+        <p id="confDetalhe" class="detalhe"></p>
+        <div class="dialogo-botoes">
+            <button type="submit" value="cancel" class="btn" id="confCancelar"></button>
+            <button type="submit" value="ok" class="btn btn-primario" id="confOk"></button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Adicionar equipamento -->
+<dialog id="dlgAdicionar" class="dialogo">
+    <form id="formAdicionar" method="dialog" novalidate>
+        <h3>Adicionar equipamento</h3>
+        <label class="campo">Patrimônio
+            <input type="text" name="patrimonio" autocomplete="off">
+        </label>
+        <label class="campo">Descrição *
+            <input type="text" name="descricao" required autocomplete="off">
+        </label>
+        <label class="campo">Fabricante
+            <input type="text" name="fabricante" autocomplete="off">
+        </label>
+        <label class="campo">Modelo
+            <input type="text" name="modelo" autocomplete="off">
+        </label>
+        <label class="campo">Nº de Série
+            <input type="text" name="serie" autocomplete="off">
+        </label>
+        <p class="erro-form" id="erroForm" hidden>Informe ao menos a descrição do equipamento.</p>
+        <div class="dialogo-botoes">
+            <button type="button" class="btn" id="btnCancelarAdd">Cancelar</button>
+            <button type="submit" class="btn btn-primario">Adicionar</button>
+        </div>
+    </form>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="dados.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
